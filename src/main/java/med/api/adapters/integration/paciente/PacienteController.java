@@ -12,7 +12,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("pacientes")
+@RequestMapping("api/pacientes")
 public class PacienteController {
 
     @Autowired
@@ -25,8 +25,8 @@ public class PacienteController {
     }
 
     @GetMapping ("/{idPaciente}")
-    public PacienteResponseDTO buscaPacientePorId(@PathVariable Long idPaciente) {
-        return pacienteService.obterPacientePorId(idPaciente);
+    public PacienteResponseDTO obterPacienteResponseDTOPorId(@PathVariable Long idPaciente) {
+        return pacienteService.obterPacienteResponseDTOPorId(idPaciente);
     }
 
     @PutMapping

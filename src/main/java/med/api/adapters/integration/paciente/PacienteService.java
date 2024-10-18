@@ -2,6 +2,7 @@ package med.api.adapters.integration.paciente;
 
 import med.api.adapters.integration.paciente.dto.PacienteRequestUpdateDTO;
 import med.api.adapters.integration.paciente.dto.PacienteResponseDTO;
+import med.api.adapters.integration.paciente.dto.PacienteResponseDTOAgend;
 import med.api.adapters.repository.jpa.PacienteRepository;
 import med.api.adapters.integration.paciente.dto.PacienteRequestCreatedDTO;
 import med.api.domain.models.Paciente;
@@ -22,8 +23,12 @@ public class PacienteService {
         pacienteRepository.save(new Paciente(pacienteRequestCreatedDTO));
     }
 
-    public PacienteResponseDTO obterPacientePorId(Long idMedico) {
-        return convertePacienteResponseDTO(pacienteRepository.findById(idMedico));
+    public PacienteResponseDTO obterPacienteResponseDTOPorId(Long id) {
+        return convertePacienteResponseDTO(pacienteRepository.findById(id));
+    }
+
+    public Paciente obterPacientePorId(Long id) {
+        return pacienteRepository.getReferenceById(id);
     }
 
     public void alterarPacientePorId(PacienteRequestUpdateDTO pacienteUpdateDTO) {
@@ -31,8 +36,8 @@ public class PacienteService {
         paciente.atualizaDados(pacienteUpdateDTO);
     }
 
-    public void InativarPacientePorId(Long idPaciente) {
-        var paciente = pacienteRepository.getReferenceById(idPaciente);
+    public void InativarPacientePorId(Long id) {
+        var paciente = pacienteRepository.getReferenceById(id);
         paciente.inativarPaciente();
     }
 
@@ -48,9 +53,17 @@ public class PacienteService {
     public PacienteResponseDTO convertePacienteResponseDTO(Optional<Paciente> paciente){
         if(paciente.isPresent()){
             var p = paciente.get();
-            return new PacienteResponseDTO(p.getId(), p.getNome(), p.getEmail(), p.getCpf(), p.getAtivo());
+            return new PacienteResponseDTO(p.getId(), p.getNome(), p.getEmail(),
+                    p.getCpf(), p.getAtivo());
         }
         return null;
+    }
+
+    public PacienteResponseDTOAgend convertePacienteResponseDTOAgend(Paciente paciente){
+            return new PacienteResponseDTOAgend(
+                    paciente.getId(),
+                    paciente.getNome(),
+                    paciente.getCpf());
     }
 
 

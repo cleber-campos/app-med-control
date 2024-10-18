@@ -6,7 +6,7 @@ import jakarta.validation.constraints.*;
 import med.api.adapters.integration.endereco.EnderecoRequestCreateDTO;
 import med.api.domain.models.Especialidade;
 
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record MedicoRequestCreateDTO(
         @NotBlank (message = "O nome e obrigatorio")
         String nome,

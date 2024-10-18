@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotNull;
 import med.api.adapters.integration.endereco.EnderecoRequestCreateDTO;
 
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record PacienteRequestUpdateDTO(
         @NotNull
         Long id,

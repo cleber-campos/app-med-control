@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import med.api.adapters.integration.endereco.EnderecoRequestCreateDTO;
 import med.api.domain.models.Especialidade;
 
-@JsonIgnoreProperties
+@JsonIgnoreProperties(ignoreUnknown = true)
 public record MedicoRequestUpdateDTO(
         @NotNull
         Long id,

@@ -18,15 +18,17 @@ public class Medico {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = false)
     private String nome;
     private String email;
     private String telefone;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String crm;
     @Enumerated(EnumType.STRING)
     private Especialidade especialidade;
     @OneToOne(mappedBy = "medico", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Endereco endereco;
+    @Column(nullable = false)
     private Boolean ativo;
 
     public Medico(MedicoRequestCreateDTO medicoRequestCreateDTO) {
@@ -52,6 +54,14 @@ public class Medico {
         if(medicoRequestUpdateDTO.endereco() != null) {
             this.endereco.atualizaDadosEndereco(medicoRequestUpdateDTO.endereco());
         }
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void inativarMedico() {
+        this.ativo = false;
     }
 
     public Long getId() {
@@ -82,12 +92,5 @@ public class Medico {
         return endereco;
     }
 
-    public boolean isAtivo() {
-        return ativo;
-    }
-
-    public void inativarMedico() {
-    this.ativo = false;
-    }
 }
 

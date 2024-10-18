@@ -37,6 +37,9 @@ public class Paciente {
         this.ativo = true;
     }
 
+    public Paciente(Long id, String nome, String cpf) {
+    }
+
     public void atualizaDados(PacienteRequestUpdateDTO pacienteUpdateDTO) {
         {
             if(pacienteUpdateDTO.nome() != null){

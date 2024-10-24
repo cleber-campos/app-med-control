@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 
 public record AgendamentoResponseDTO (
-        Long id,
+        Long idAgendamento,
         LocalDateTime dataHora,
         PacienteResponseDTOAgend paciente,
         MedicoResponseDTOAgend medico

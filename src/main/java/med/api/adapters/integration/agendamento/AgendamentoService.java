@@ -7,19 +7,20 @@ import med.api.adapters.integration.agendamento.dto.AgendamentoResponseDTO;
 import med.api.adapters.integration.medico.MedicoService;
 import med.api.adapters.integration.paciente.PacienteService;
 import med.api.adapters.repository.jpa.AgendamentoRepository;
+import med.api.domain.exceptions.MedicoNotFoundException;
 import med.api.domain.models.Agendamento;
 import med.api.domain.models.Medico;
 import med.api.domain.models.Paciente;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Optional;
 
 @Service
 public class AgendamentoService {
@@ -31,95 +32,120 @@ public class AgendamentoService {
     @Autowired
     PacienteService pacienteService;
 
-    public void cadastrarAgendamento(AgendamentoRequestCreateDTO
-                                             agendamentoRequestCreateDTO) throws Exception {
-        var medico = medicoService.obterMedicoPorId(
-                agendamentoRequestCreateDTO.idMedico());
-        // se o medico vier vazio
-        // obterMedicoDisponivel();
+    public void cadastrarAgendamento(AgendamentoRequestCreateDTO agendamentoRequestCreateDTO) throws Exception {
 
-        var paciente = pacienteService.obterPacientePorId(
-                agendamentoRequestCreateDTO.idPaciente());
+        var medico = obterMedicoParaAgendamento(agendamentoRequestCreateDTO);
+        var paciente = obterPacienteParaAgendamento(agendamentoRequestCreateDTO);
+        LocalDateTime dataHora = agendamentoRequestCreateDTO.dataHora();
 
-        var dataHora = agendamentoRequestCreateDTO.dataHora();
-
+        // Validação de regras de negócio antes do agendamento
         validarRegrasInclusaoAgendamento(medico, paciente, dataHora);
 
-        agendamentoRepository.save(new Agendamento(paciente, medico, dataHora));
+        Agendamento novoAgendamento = new Agendamento(paciente, medico, dataHora);
+        agendamentoRepository.save(novoAgendamento);
     }
 
     public AgendamentoResponseDTO obterAgendamentoPorId(Long id) {
-        return converteAgendamentoResponseDTO(
-                agendamentoRepository.findById(id));
+        var agendamento = agendamentoRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado"));
+        var medico = medicoService.converteMedicoResponseDTOAgend(agendamento.getMedico());
+        var paciente = pacienteService.convertePacienteResponseDTOAgend(agendamento.getPaciente());
+        return new AgendamentoResponseDTO(agendamento.getId(), agendamento.getDataHora(),
+                paciente, medico);
     }
 
     public void alterarAgendamentoPorId(Long id, AgendamentoRequestUpdateDTO agendamentoUpdateDTO) throws Exception {
         if (id == null) {
             throw new IllegalArgumentException("O ID do agendamento não pode ser nulo.");
         }
-        var agendamento = agendamentoRepository.findById(id)
+        Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Agendamento não encontrado"));
 
         Medico medico = agendamento.getMedico();
-        if(agendamentoUpdateDTO.idMedico() != null) {
+        if (agendamentoUpdateDTO.idMedico() != null) {
             medico = medicoService.obterMedicoPorId(agendamentoUpdateDTO.idMedico());
         }
 
         Paciente paciente = agendamento.getPaciente();
-        if(agendamentoUpdateDTO.idPaciente() != null) {
+        if (agendamentoUpdateDTO.idPaciente() != null) {
             paciente = pacienteService.obterPacientePorId(agendamentoUpdateDTO.idPaciente());
         }
 
-        //Validar entrada Agendamento
-        validarRegrasAlteracaoAgendamento(medico, paciente, agendamentoUpdateDTO.dataHora());
+        validarRegrasAlteracaoAgendamento(medico, agendamentoUpdateDTO.dataHora());
 
-        //Atualiza o agendamento
-        agendamento.setDataHora(agendamentoUpdateDTO.dataHora());
+        if (agendamentoUpdateDTO.dataHora() != null) {
+            agendamento.setDataHora(agendamentoUpdateDTO.dataHora());
+        }
         agendamento.setMedico(medico);
         agendamento.setPaciente(paciente);
 
-        //Salva agendamento atualizado
         agendamentoRepository.save(agendamento);
     }
 
     public void deletarAgendamentoPorId(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("O ID do agendamento não pode ser nulo.");
+        }
         agendamentoRepository.deleteById(id);
     }
 
-    //revisar
-    public Page<AgendamentoResponseDTO> obterListaPaginadaDeAgendamentos(
-            Pageable paginacao) {
-        return null;
+    public Page<AgendamentoResponseDTO> obterListaPaginadaDeAgendamentos(Pageable paginacao) {
+        //paginacao ordenada
+        Pageable paginacaoOrdenada = PageRequest.of(
+                paginacao.getPageNumber(),
+                paginacao.getPageSize(),
+                Sort.by(Sort.Direction.ASC, "dataHora")
+        );
+        // Busca agendamentos no banco de dados de forma paginada e ordenada
+        Page<Agendamento> agendamentosPaginados = agendamentoRepository.findAll(paginacaoOrdenada);
+
+        // Converte cada Agendamento para AgendamentoResponseDTO
+        return agendamentosPaginados.map(
+                a -> new AgendamentoResponseDTO( a.getId(), a.getDataHora(),
+                pacienteService.convertePacienteResponseDTOAgend(a.getPaciente()),
+                medicoService.converteMedicoResponseDTOAgend(a.getMedico()))
+        );
     }
 
-    public AgendamentoResponseDTO converteAgendamentoResponseDTO(
-            Optional<Agendamento> agendamento){
-        if(agendamento.isPresent()){
-            var a = agendamento.get();
-            var medico = medicoService.converteMedicoResponseDTOAgend(
-                    a.getMedico());
-            var paciente = pacienteService.convertePacienteResponseDTOAgend(
-                    a.getPaciente());
-            return new AgendamentoResponseDTO(a.getId(), a.getDataHora(),
-                    paciente, medico);
+    private Paciente obterPacienteParaAgendamento(AgendamentoRequestCreateDTO agendamentoRequestCreateDTO) throws Exception {
+        var paciente = pacienteService.obterPacientePorId(agendamentoRequestCreateDTO.idPaciente());
+        if(!paciente.isAtivo()){ throw new Exception("O paciente esta inativo."); }
+        return paciente;
+    }
+
+    private Medico obterMedicoParaAgendamento(AgendamentoRequestCreateDTO agendamentoRequestCreateDTO) throws Exception {
+        Pageable limite = PageRequest.of(0, 1);  // Página 0, com tamanho 1 (apenas 1 médico)
+        if(agendamentoRequestCreateDTO.idMedico() == null) {
+            // Busca apenas um médico disponível disponivel no horario
+            Page<Medico> medicoDisponivel = agendamentoRepository.
+                    findMedicoDisponivel(agendamentoRequestCreateDTO.dataHora(), limite);
+
+            // Verifica se encontrou algum médico disponível
+            var medico = medicoDisponivel.stream().findFirst().orElseThrow(() ->
+                    new MedicoNotFoundException("Nenhum médico disponível para o horário solicitado."));
+
+            // Verifica se o medico esta ativo
+            if(!medico.isAtivo()){ throw new Exception("O medico esta inativo."); }
+            return medico;
         }
-        return null;
+
+        var medico = medicoService.obterMedicoPorId(agendamentoRequestCreateDTO.idMedico());
+
+        //melhorar verificacao para evitar duplicidade
+        // Verifica se o medico esta ativo
+        if(!medico.isAtivo()){ throw new Exception("O medico esta inativo."); }
+        return medico;
+
     }
 
-    private void obterMedicoDisponivel(){
-
-    }
-
-    private void validarRegrasInclusaoAgendamento(Medico medico, Paciente paciente,
-                                                  LocalDateTime dataHora) throws Exception {
+    private void validarRegrasInclusaoAgendamento(Medico medico, Paciente paciente, LocalDateTime dataHora) throws Exception {
         validarHorarioFuncionamento(dataHora);
         validarAntecedenciaMinima(dataHora);
         validarDisponibilidadePaciente(paciente, dataHora);
         validarDisponibilidadeMedico(medico, dataHora);
     }
 
-    private void validarRegrasAlteracaoAgendamento(Medico medico, Paciente paciente,
-                                                  LocalDateTime dataHora) throws Exception {
+    private void validarRegrasAlteracaoAgendamento(Medico medico, LocalDateTime dataHora) throws Exception {
         validarHorarioFuncionamento(dataHora);
         validarAntecedenciaMinima(dataHora);
         validarDisponibilidadeMedico(medico, dataHora);
@@ -162,7 +188,6 @@ public class AgendamentoService {
         if(agendamentoExistente.isPresent()){
             throw new IllegalArgumentException("O medico já tem um agendamento nesta data/hora");
         }
-
     }
 
 }

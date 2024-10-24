@@ -50,7 +50,7 @@ public class MedicoService {
             throw new IllegalArgumentException("O ID do médico não pode ser nulo.");
         }
         var medico = medicoRepository.getReferenceById(idMedico);
-        medico.inativarMedico();
+        medico.setAtivo(false);
     }
 
     public Page<MedicoResponseDTO> obterListaPaginadaDeMedicosAtivos(Pageable paginacao) {

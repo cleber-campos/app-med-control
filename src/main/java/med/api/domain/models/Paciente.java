@@ -37,9 +37,7 @@ public class Paciente {
         this.ativo = true;
     }
 
-    public Paciente(Long id, String nome, String cpf) {
-    }
-
+    //passar essas validacoes para a classe PacienteService
     public void atualizaDados(PacienteRequestUpdateDTO pacienteUpdateDTO) {
         {
             if(pacienteUpdateDTO.nome() != null){
@@ -78,12 +76,23 @@ public class Paciente {
         return endereco;
     }
 
-    public Boolean getAtivo() {
+    public boolean isAtivo() {
         return ativo;
     }
 
-    public void inativarPaciente() {
-        this.ativo = false;
+    public void setAtivo(Boolean status) {
+        this.ativo = status;
     }
 
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public void setTelefone(String telefone) {
+        this.telefone = telefone;
+    }
+
+    public void setEndereco(Endereco endereco) {
+        this.endereco = endereco;
+    }
 }

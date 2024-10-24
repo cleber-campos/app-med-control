@@ -2,6 +2,8 @@ package med.api.adapters.repository.jpa;
 
 import med.api.domain.models.Agendamento;
 import med.api.domain.models.Medico;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,6 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> {
+
     Optional<Agendamento> findById(Long id);
 
     @Query("SELECT a FROM Agendamento a " +
@@ -25,8 +28,9 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Long> 
     Optional<Agendamento> findAgendamentoByMedicoAndDataHora(@Param("idMedico") Long idMedico,
                                                              @Param("dataHora")LocalDateTime dataHora);
 
-    //List<Agendamento> buscarAgendamentoPorMedico(Long idMedico);
+    @Query("SELECT a.medico FROM Agendamento a " +
+            "WHERE a.dataHora != :dataHora")
+    Page<Medico> findMedicoDisponivel(@Param("dataHora") LocalDateTime dataHora, Pageable limite);
 
-    //List<Agendamento> buscarAgendamentoPorPaciente(Long idPaciente);
 
 }

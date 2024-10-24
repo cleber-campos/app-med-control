@@ -60,8 +60,8 @@ public class Medico {
         return ativo;
     }
 
-    public void inativarMedico() {
-        this.ativo = false;
+    public void setAtivo( Boolean status) {
+        this.ativo = status;
     }
 
     public Long getId() {

@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
-
 @Service
 public class PacienteService {
 
@@ -23,6 +22,11 @@ public class PacienteService {
         pacienteRepository.save(new Paciente(pacienteRequestCreatedDTO));
     }
 
+    public void alterarPacientePorId(PacienteRequestUpdateDTO pacienteUpdateDTO) {
+        var paciente = pacienteRepository.getReferenceById(pacienteUpdateDTO.id());
+        paciente.atualizaDados(pacienteUpdateDTO);
+    }
+
     public PacienteResponseDTO obterPacienteResponseDTOPorId(Long id) {
         return convertePacienteResponseDTO(pacienteRepository.findById(id));
     }
@@ -31,14 +35,9 @@ public class PacienteService {
         return pacienteRepository.getReferenceById(id);
     }
 
-    public void alterarPacientePorId(PacienteRequestUpdateDTO pacienteUpdateDTO) {
-        var paciente = pacienteRepository.getReferenceById(pacienteUpdateDTO.id());
-        paciente.atualizaDados(pacienteUpdateDTO);
-    }
-
     public void InativarPacientePorId(Long id) {
         var paciente = pacienteRepository.getReferenceById(id);
-        paciente.inativarPaciente();
+        paciente.setAtivo(false);
     }
 
     public Page<PacienteResponseDTO> obterListaDePacientes(Pageable paginacao) {
@@ -47,14 +46,14 @@ public class PacienteService {
 
     public Page<PacienteResponseDTO> convertePagePacienteResponseDTO(Page<Paciente> pacientes){
         return pacientes.map(p -> new PacienteResponseDTO(p.getId(), p.getNome(),
-                p.getEmail(), p.getCpf(), p.getAtivo()));
+                p.getEmail(), p.getCpf(), p.isAtivo()));
     }
 
     public PacienteResponseDTO convertePacienteResponseDTO(Optional<Paciente> paciente){
         if(paciente.isPresent()){
             var p = paciente.get();
             return new PacienteResponseDTO(p.getId(), p.getNome(), p.getEmail(),
-                    p.getCpf(), p.getAtivo());
+                    p.getCpf(), p.isAtivo());
         }
         return null;
     }

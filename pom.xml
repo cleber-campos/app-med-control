@@ -6,13 +6,13 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.4.0-M3</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<relativePath/> <!-- lookup parent from consultas -->
 	</parent>
 	<groupId>med.voll</groupId>
 	<artifactId>api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>api</name>
-	<description>API REST da aplicação med.voll</description>
+	<description>API REST da aplicação app.voll</description>
 	<url/>
 	<licenses>
 		<license/>

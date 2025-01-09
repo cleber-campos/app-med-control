@@ -8,6 +8,7 @@ import app.domain.pacientes.repository.PacienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 
@@ -17,13 +18,16 @@ public class PacienteService {
     @Autowired
     PacienteRepository pacienteRepository;
 
-    public void cadastrarPaciente(PacienteRequestCreatedDTO pacienteRequestCreatedDTO) {
-        pacienteRepository.save(new Paciente(pacienteRequestCreatedDTO));
+    public PacienteResponseDTO cadastrarPaciente(PacienteRequestCreatedDTO pacienteRequestCreatedDTO) {
+        var paciente = new Paciente(pacienteRequestCreatedDTO);
+        pacienteRepository.save(paciente);
+        return obterPacienteResponseDTOPorId(paciente.getId());
     }
 
-    public void alterarPaciente(Long idPaciente, PacienteRequestUpdateDTO pacienteUpdateDTO) {
+    public PacienteResponseDTO alterarPaciente(Long idPaciente, PacienteRequestUpdateDTO pacienteUpdateDTO) {
         var paciente = pacienteRepository.getReferenceById(idPaciente);
         paciente.atualizaDadosPaciente(pacienteUpdateDTO);
+        return obterPacienteResponseDTOPorId(paciente.getId());
     }
 
     public PacienteResponseDTO obterPacienteResponseDTOPorId(Long id) {

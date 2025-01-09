@@ -33,13 +33,14 @@ public class ConsultaService {
 
     public void cadastrarConsulta(ConsultaRequestCreateDTO ConsultaRequestCreateDTO) {
 
+        //obtem paciente e medico
         var medico = obterMedicoParaConsulta(ConsultaRequestCreateDTO);
         var paciente = obterPacienteParaConsulta(ConsultaRequestCreateDTO);
         LocalDateTime dataConsulta = ConsultaRequestCreateDTO.dataConsulta();
 
-        // Validação de regras de negócio antes do Consulta
+        //valida  regras de negócio
         validarRegrasInclusaoConsulta(medico, paciente, dataConsulta);
-
+        //salva consulta
         Consulta novoConsulta = new Consulta(paciente, medico, dataConsulta);
         consultaRepository.save(novoConsulta);
     }
@@ -48,11 +49,8 @@ public class ConsultaService {
 
         var Consulta = consultaRepository.findById(id)
                 .orElseThrow(() -> new ConsultaNotFoundException("Consulta não encontrado"));
-
         var medico = medicoService.obterMedicoResponseDTOPorId(Consulta.getMedico().getId());
-
         var paciente = pacienteService.obterPacienteResponseDTOPorId(Consulta.getPaciente().getId());
-
         return new ConsultaResponseDTO(Consulta.getId(), Consulta.getDataConsulta(),
                 paciente, medico);
     }
@@ -88,7 +86,12 @@ public class ConsultaService {
             throw new IllegalArgumentException("O ID do Consulta não pode ser nulo.");
         }
         //verificar se o Consulta existe antes de deletar
-        consultaRepository.deleteById(id);
+        var consulta = consultaRepository.findById(id);
+        if(consulta.isEmpty()){
+            throw new IllegalArgumentException("A consulta nao foi encontrada!");
+        }
+
+        //consultaRepository.deleteById(id);
     }
 
     public Page<ConsultaResponseDTO> listarConsultas(Pageable paginacao) {
@@ -96,13 +99,13 @@ public class ConsultaService {
         Pageable paginacaoOrdenada = PageRequest.of(
                 paginacao.getPageNumber(),
                 paginacao.getPageSize(),
-                Sort.by(Sort.Direction.ASC, "dataHora")
+                Sort.by(Sort.Direction.ASC, "dataConsulta")
         );
         // Busca consultas no banco de dados de forma paginada e ordenada
-        Page<Consulta> ConsultasPaginados = consultaRepository.findAll(paginacaoOrdenada);
+        Page<Consulta> ConsultasPaginadas = consultaRepository.findAll(paginacaoOrdenada);
 
         // Converte cada Consulta para ConsultaResponseDTO
-        return ConsultasPaginados.map(
+        return ConsultasPaginadas.map(
                 a -> new ConsultaResponseDTO( a.getId(), a.getDataConsulta(),
                 pacienteService.obterPacienteResponseDTOPorId(a.getPaciente().getId()),
                         medicoService.obterMedicoResponseDTOPorId(a.getMedico().getId()))
@@ -121,7 +124,7 @@ public class ConsultaService {
     private Medico obterMedicoParaConsulta(ConsultaRequestCreateDTO ConsultaRequestCreateDTO) {
         Pageable limite = PageRequest.of(0, 1);  // Página 0, com tamanho 1 (apenas 1 médico)
         if(ConsultaRequestCreateDTO.idMedico() == null) {
-            // Busca apenas um médico disponível disponivel no horario
+            // Busca apenas um médico disponível no horario
             Page<Medico> medicoDisponivel = consultaRepository.
                     findMedicoDisponivel(ConsultaRequestCreateDTO.dataConsulta(), limite);
 

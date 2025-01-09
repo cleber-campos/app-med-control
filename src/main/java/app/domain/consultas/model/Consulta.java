@@ -28,6 +28,7 @@ public class Consulta {
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataHoraInclusao;
     private LocalDateTime dataHoraAlteracao;
+    private String motivoCancelamento;
 
     public Consulta(Paciente paciente, Medico medico, LocalDateTime dataConsulta) {
         this.paciente = paciente;
@@ -74,4 +75,27 @@ public class Consulta {
         this.dataConsulta = dataConsulta;
     }
 
+    public LocalDateTime getDataHoraInclusao() {
+        return dataHoraInclusao;
+    }
+
+    public void setDataHoraInclusao(LocalDateTime dataHoraInclusao) {
+        this.dataHoraInclusao = dataHoraInclusao;
+    }
+
+    public LocalDateTime getDataHoraAlteracao() {
+        return dataHoraAlteracao;
+    }
+
+    public void setDataHoraAlteracao(LocalDateTime dataHoraAlteracao) {
+        this.dataHoraAlteracao = dataHoraAlteracao;
+    }
+
+    public String getMotivoCancelamento() {
+        return motivoCancelamento;
+    }
+
+    public void setMotivoCancelamento(String motivoCancelamento) {
+        this.motivoCancelamento = motivoCancelamento;
+    }
 }

@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("api/pacientes")
@@ -21,30 +23,43 @@ public class PacienteController {
 
     @PostMapping
     @Transactional
-    public void cadastrarPaciente(@RequestBody @Valid PacienteRequestCreatedDTO pacienteRequestCreatedDTO) {
-        pacienteService.cadastrarPaciente(pacienteRequestCreatedDTO);
+    public ResponseEntity cadastrarPaciente(@RequestBody @Valid PacienteRequestCreatedDTO pacienteRequestCreatedDTO
+            , UriComponentsBuilder uriBuilder) {
+        var pacienteResponseDTO = pacienteService.cadastrarPaciente(pacienteRequestCreatedDTO);
+        var uri = uriBuilder.path("/pacientes/{idPaciente}").buildAndExpand(pacienteResponseDTO.id()).toUri();
+        //201 - recurso criado
+        return ResponseEntity.created(uri).body(pacienteResponseDTO);
+
     }
 
     @GetMapping ("/{idPaciente}")
-    public PacienteResponseDTO obterPacientePorId(@PathVariable Long idPaciente) {
-        return pacienteService.obterPacienteResponseDTOPorId(idPaciente);
+    public ResponseEntity obterPacientePorId(@PathVariable Long idPaciente) {
+        var pacienteResponseDTO = pacienteService.obterPacienteResponseDTOPorId(idPaciente);
+        //200 - sucesso
+        return ResponseEntity.ok(pacienteResponseDTO);
     }
 
     @PutMapping("/{idPaciente}")
     @Transactional
-    public void atualizarPaciente(@PathVariable Long idPaciente, @RequestBody @Valid PacienteRequestUpdateDTO pacienteUpdateDTO){
-        pacienteService.alterarPaciente(idPaciente, pacienteUpdateDTO);
+    public ResponseEntity atualizarPaciente(@PathVariable Long idPaciente, @RequestBody @Valid PacienteRequestUpdateDTO pacienteUpdateDTO){
+        var pacienteResponseDTO = pacienteService.alterarPaciente(idPaciente, pacienteUpdateDTO);
+        //200 - sucesso
+        return ResponseEntity.ok(pacienteResponseDTO);
     }
 
     @DeleteMapping ("/{idPaciente}")
     @Transactional
-    public void inativarPaciente(@PathVariable Long idPaciente){
+    public ResponseEntity inativarPaciente(@PathVariable Long idPaciente){
         pacienteService.InativarPaciente(idPaciente);
+        //204 - Sem conteudo
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public Page<PacienteResponseDTO> listarPacientes(@PageableDefault(size = 10) Pageable paginacao) {
-        return pacienteService.obterListaDePacientes(paginacao);
+    public ResponseEntity<Page<PacienteResponseDTO>> listarPacientes(@PageableDefault(size = 10) Pageable paginacao) {
+        var page = pacienteService.obterListaDePacientes(paginacao);
+        //200 - sucesso
+        return ResponseEntity.ok(page);
     }
 
 }

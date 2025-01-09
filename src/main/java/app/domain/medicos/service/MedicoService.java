@@ -19,8 +19,10 @@ public class MedicoService {
     @Autowired
     MedicoRepository medicoRepository;
 
-    public void cadastrarMedico(MedicoRequestCreateDTO medicoRequestCreateDTO) {
-        medicoRepository.save(new Medico(medicoRequestCreateDTO));
+    public MedicoResponseDTO cadastrarMedico(MedicoRequestCreateDTO medicoRequestCreateDTO) {
+        var medico = new Medico(medicoRequestCreateDTO);
+        medicoRepository.save(medico);
+        return obterMedicoResponseDTOPorId(medico.getId());
     }
 
     public MedicoResponseDTO obterMedicoResponseDTOPorId(Long idMedico) {
@@ -38,9 +40,10 @@ public class MedicoService {
                 .orElseThrow(() -> new EntityNotFoundException("Médico não encontrado"));
     }
 
-    public void alterarMedicoPorId(Long idMedico, MedicoRequestUpdateDTO medicoRequestUpdateDTO) {
+    public MedicoResponseDTO alterarMedicoPorId(Long idMedico, MedicoRequestUpdateDTO medicoRequestUpdateDTO) {
         var medico = medicoRepository.getReferenceById(idMedico);
         medico.atualizaDadosMedico(medicoRequestUpdateDTO);
+        return obterMedicoResponseDTOPorId(medico.getId());
     }
 
     public void inativarMedicoPorId(Long idMedico) {

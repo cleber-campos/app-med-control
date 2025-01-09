@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,8 +40,9 @@ public class ConsultaController {
 
     @DeleteMapping ("/{id}")
     @Transactional
-    public void cancelarConsulta(@PathVariable Long id) {
+    public ResponseEntity cancelarConsulta(@PathVariable Long id) {
         consultaService.cancelarConsulta(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping

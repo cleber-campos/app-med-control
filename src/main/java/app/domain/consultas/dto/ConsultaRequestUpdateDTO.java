@@ -7,8 +7,7 @@ import java.time.LocalDateTime;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ConsultaRequestUpdateDTO(
-        @NotNull
-        Long idPaciente,
+        @NotNull Long idPaciente,
         Long idMedico,
         LocalDateTime dataConsulta){
 }

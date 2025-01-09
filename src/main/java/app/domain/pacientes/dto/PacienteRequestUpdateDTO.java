@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PacienteRequestUpdateDTO(
-        @NotNull String nome,
+        String nome,
         String telefone,
         EnderecoRequestUpdateDTO endereco) {
 }

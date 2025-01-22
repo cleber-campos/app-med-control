@@ -27,10 +27,4 @@ public interface ConsultaRepository extends JpaRepository<Consulta, Long> {
             "a.dataConsulta = :dataConsulta")
     Optional<Consulta> findConsultaByMedicoAndDataHora(@Param("idMedico") Long idMedico,
                                                        @Param("dataConsulta") LocalDateTime dataConsulta);
-
-    @Query("SELECT a.medico FROM Consulta a " +
-            "WHERE a.dataConsulta != :dataConsulta " +
-            "ORDER BY FUNCTION ('RANDOM')")
-    Page<Medico> findMedicoDisponivel(@Param("dataConsulta") LocalDateTime dataConsulta, Pageable limite);
-
 }

@@ -5,12 +5,11 @@ import app.domain.pacientes.dto.PacienteRequestUpdateDTO;
 import app.domain.pacientes.dto.PacienteResponseDTO;
 import app.domain.pacientes.model.Paciente;
 import app.domain.pacientes.repository.PacienteRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import java.util.Optional;
 
 @Service
 public class PacienteService {
@@ -25,21 +24,29 @@ public class PacienteService {
     }
 
     public PacienteResponseDTO alterarPaciente(Long idPaciente, PacienteRequestUpdateDTO pacienteUpdateDTO) {
-        var paciente = pacienteRepository.getReferenceById(idPaciente);
+        var paciente = pacienteRepository.findById(idPaciente)
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
         paciente.atualizaDadosPaciente(pacienteUpdateDTO);
         return obterPacienteResponseDTOPorId(paciente.getId());
     }
 
-    public PacienteResponseDTO obterPacienteResponseDTOPorId(Long id) {
-        return convertePacienteResponseDTO(pacienteRepository.findById(id));
+    public PacienteResponseDTO obterPacienteResponseDTOPorId(Long idPaciente) {
+        if (idPaciente == null) throw new IllegalArgumentException("O ID do paciente não pode ser nulo.");
+        var paciente = pacienteRepository.findById(idPaciente)
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
+        return convertePacienteResponseDTO(paciente);
     }
 
-    public Paciente obterPacientePorId(Long id) {
-        return pacienteRepository.getReferenceById(id);
+    public Paciente obterPacientePorId(Long idPaciente) {
+        if (idPaciente == null) throw new IllegalArgumentException("O ID do paciente não pode ser nulo.");
+        return pacienteRepository.findById(idPaciente)
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
     }
 
-    public void InativarPaciente(Long id) {
-        var paciente = pacienteRepository.getReferenceById(id);
+    public void InativarPaciente(Long idPaciente) {
+        if (idPaciente == null) throw new IllegalArgumentException("O ID do paciente não pode ser nulo.");
+        var paciente = pacienteRepository.findById(idPaciente)
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
         paciente.setStatus(false);
     }
 
@@ -52,13 +59,9 @@ public class PacienteService {
                 p.getEmail(), p.getCpf(), p.getStatus()));
     }
 
-    public PacienteResponseDTO convertePacienteResponseDTO(Optional<Paciente> paciente){
-        if(paciente.isPresent()){
-            var p = paciente.get();
-            return new PacienteResponseDTO(p.getId(), p.getNome(), p.getEmail(),
-                    p.getCpf(), p.getStatus());
-        }
-        return null;
+    public PacienteResponseDTO convertePacienteResponseDTO(Paciente paciente){
+        return new PacienteResponseDTO(paciente.getId(), paciente.getNome(), paciente.getEmail(),
+                    paciente.getCpf(), paciente.getStatus());
     }
 
 }

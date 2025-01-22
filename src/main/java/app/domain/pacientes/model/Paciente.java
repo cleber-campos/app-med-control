@@ -1,6 +1,6 @@
 package app.domain.pacientes.model;
 
-import app.domain.endereco.Endereco;
+import app.domain.endereco.model.Endereco;
 import app.domain.pacientes.dto.PacienteRequestCreatedDTO;
 import app.domain.pacientes.dto.PacienteRequestUpdateDTO;
 import jakarta.persistence.*;

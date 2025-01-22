@@ -23,42 +23,36 @@ public class PacienteController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity cadastrarPaciente(@RequestBody @Valid PacienteRequestCreatedDTO pacienteRequestCreatedDTO
+    public ResponseEntity<PacienteResponseDTO> cadastrarPaciente(@RequestBody @Valid PacienteRequestCreatedDTO pacienteRequestCreatedDTO
             , UriComponentsBuilder uriBuilder) {
         var pacienteResponseDTO = pacienteService.cadastrarPaciente(pacienteRequestCreatedDTO);
         var uri = uriBuilder.path("/pacientes/{idPaciente}").buildAndExpand(pacienteResponseDTO.id()).toUri();
-        //201 - recurso criado
         return ResponseEntity.created(uri).body(pacienteResponseDTO);
-
     }
 
     @GetMapping ("/{idPaciente}")
-    public ResponseEntity obterPacientePorId(@PathVariable Long idPaciente) {
+    public ResponseEntity<PacienteResponseDTO> obterPacientePorId(@PathVariable Long idPaciente) {
         var pacienteResponseDTO = pacienteService.obterPacienteResponseDTOPorId(idPaciente);
-        //200 - sucesso
         return ResponseEntity.ok(pacienteResponseDTO);
     }
 
     @PutMapping("/{idPaciente}")
     @Transactional
-    public ResponseEntity atualizarPaciente(@PathVariable Long idPaciente, @RequestBody @Valid PacienteRequestUpdateDTO pacienteUpdateDTO){
+    public ResponseEntity<PacienteResponseDTO> atualizarPaciente(@PathVariable Long idPaciente, @RequestBody @Valid PacienteRequestUpdateDTO pacienteUpdateDTO){
         var pacienteResponseDTO = pacienteService.alterarPaciente(idPaciente, pacienteUpdateDTO);
-        //200 - sucesso
         return ResponseEntity.ok(pacienteResponseDTO);
     }
 
     @DeleteMapping ("/{idPaciente}")
     @Transactional
-    public ResponseEntity inativarPaciente(@PathVariable Long idPaciente){
+    public ResponseEntity<Void> inativarPaciente(@PathVariable Long idPaciente){
         pacienteService.InativarPaciente(idPaciente);
-        //204 - Sem conteudo
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
     public ResponseEntity<Page<PacienteResponseDTO>> listarPacientes(@PageableDefault(size = 10) Pageable paginacao) {
         var page = pacienteService.obterListaDePacientes(paginacao);
-        //200 - sucesso
         return ResponseEntity.ok(page);
     }
 

@@ -1,6 +1,6 @@
 package app.domain.medicos.model;
 
-import app.domain.endereco.Endereco;
+import app.domain.endereco.model.Endereco;
 import app.domain.medicos.dto.MedicoRequestCreateDTO;
 import app.domain.medicos.dto.MedicoRequestUpdateDTO;
 import jakarta.persistence.*;

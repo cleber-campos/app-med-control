@@ -1,7 +1,7 @@
 package app.domain.medicos.dto;
 
 import app.domain.medicos.model.Especialidade;
-import app.domain.endereco.EnderecoRequestCreateDTO;
+import app.domain.endereco.dto.EnderecoRequestCreateDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
@@ -11,10 +11,23 @@ import jakarta.validation.constraints.Pattern;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record MedicoRequestCreateDTO(
-        @NotBlank (message = "O nome e obrigatorio") String nome,
-        @NotBlank @Email String email,
-        @NotBlank String telefone,
-        @NotBlank @Pattern(regexp = "\\d{4,6}") String crm,
-        @NotNull Especialidade especialidade,
-        @NotNull @Valid EnderecoRequestCreateDTO endereco) {
+        @NotBlank (message = "O nome e obrigatorio")
+        String nome,
+
+        @NotBlank (message = "O email e obrigatorio")
+        @Email (message = "Formato de email invalido")
+        String email,
+
+        @NotBlank (message = "O telefone e obrigatorio")
+        String telefone,
+
+        @NotBlank (message = "O crm e obrigatorio")
+        @Pattern (regexp = "\\d{4,6}", message = "Formato do CRM invalido")
+        String crm,
+
+        @NotNull (message = "A especialidade e obrigatoria")
+        Especialidade especialidade,
+
+        @NotNull (message = "Dados de endereco sao obrigatorios")
+        @Valid EnderecoRequestCreateDTO endereco) {
 }

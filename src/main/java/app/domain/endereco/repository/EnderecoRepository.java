@@ -1,5 +1,6 @@
-package app.domain.endereco;
+package app.domain.endereco.repository;
 
+import app.domain.endereco.model.Endereco;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

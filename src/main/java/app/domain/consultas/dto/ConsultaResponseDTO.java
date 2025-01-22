@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public record ConsultaResponseDTO(
         Long id,
         LocalDateTime dataConsulta,
+        Boolean Status,
         PacienteResponseDTO paciente,
         MedicoResponseDTO medico) {
 

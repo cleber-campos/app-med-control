@@ -1,4 +1,4 @@
-package app.domain.endereco;
+package app.domain.endereco.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;

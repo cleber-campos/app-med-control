@@ -1,6 +1,7 @@
-package app.domain.endereco;
+package app.domain.endereco.model;
 
-import app.domain.pacientes.model.Paciente;
+import app.domain.endereco.dto.EnderecoRequestCreateDTO;
+import app.domain.endereco.dto.EnderecoRequestUpdateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

@@ -28,13 +28,15 @@ public class Consulta {
     @Column(nullable = false, updatable = false)
     private LocalDateTime dataHoraInclusao;
     private LocalDateTime dataHoraAlteracao;
-    private String motivoCancelamento;
+    private MotivoCancelamento motivoCancelamento;
+    private Boolean status;
 
     public Consulta(Paciente paciente, Medico medico, LocalDateTime dataConsulta) {
         this.paciente = paciente;
         this.medico = medico;
         this.dataConsulta = dataConsulta;
         this.dataHoraInclusao = LocalDateTime.now(); // Define a data de inclusão na criação
+        this.status = true;
     }
 
     @PreUpdate
@@ -91,11 +93,20 @@ public class Consulta {
         this.dataHoraAlteracao = dataHoraAlteracao;
     }
 
-    public String getMotivoCancelamento() {
+    public MotivoCancelamento getMotivoCancelamento() {
         return motivoCancelamento;
     }
 
-    public void setMotivoCancelamento(String motivoCancelamento) {
+    public void setMotivoCancelamento(MotivoCancelamento motivoCancelamento) {
         this.motivoCancelamento = motivoCancelamento;
     }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
 }

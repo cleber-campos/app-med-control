@@ -1,7 +1,7 @@
 package app.domain.pacientes.model;
 
 import app.domain.endereco.model.Endereco;
-import app.domain.pacientes.dto.PacienteRequestCreatedDTO;
+import app.domain.pacientes.dto.PacienteRequestCreateDTO;
 import app.domain.pacientes.dto.PacienteRequestUpdateDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -34,12 +34,12 @@ public class Paciente {
     private LocalDateTime dataHoraInclusao;
     private LocalDateTime dataHoraAlteracao;
 
-    public Paciente(PacienteRequestCreatedDTO pacienteRequestCreatedDTO) {
-        this.nome = pacienteRequestCreatedDTO.nome();
-        this.email = pacienteRequestCreatedDTO.email();
-        this.telefone = pacienteRequestCreatedDTO.telefone();
-        this.endereco = new Endereco(pacienteRequestCreatedDTO.endereco());
-        this.cpf = pacienteRequestCreatedDTO.cpf();
+    public Paciente(PacienteRequestCreateDTO pacienteRequestCreateDTO) {
+        this.nome = pacienteRequestCreateDTO.nome();
+        this.email = pacienteRequestCreateDTO.email();
+        this.telefone = pacienteRequestCreateDTO.telefone();
+        this.endereco = new Endereco(pacienteRequestCreateDTO.endereco());
+        this.cpf = pacienteRequestCreateDTO.cpf();
         this.status = true;
         this.dataHoraInclusao = LocalDateTime.now();
     }

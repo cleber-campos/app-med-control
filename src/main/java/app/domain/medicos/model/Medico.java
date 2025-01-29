@@ -47,7 +47,7 @@ public class Medico {
         this.dataHoraInclusao = LocalDateTime.now();
     }
 
-    public void atualizaDadosMedico(MedicoRequestUpdateDTO medicoRequestUpdateDTO) {
+    public void atualizaDados(MedicoRequestUpdateDTO medicoRequestUpdateDTO) {
         if (medicoRequestUpdateDTO.nome() != null) {
             this.nome = medicoRequestUpdateDTO.nome();
         }

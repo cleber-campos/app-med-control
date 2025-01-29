@@ -10,7 +10,6 @@ import app.domain.medicos.service.MedicoService;
 import app.domain.medicos.model.Medico;
 import app.domain.pacientes.service.PacienteService;
 import app.shared.exceptions.*;
-import ch.qos.logback.core.joran.conditional.ElseAction;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,44 +34,48 @@ public class ConsultaService {
     PacienteService pacienteService;
 
     @Transactional
-    public ConsultaResponseDTO cadastrarConsulta(ConsultaRequestCreateDTO consultaRequestCreateDTO) {
-        var dataConsulta = consultaRequestCreateDTO.dataConsulta();
-        var paciente = pacienteService.obterPacientePorId(consultaRequestCreateDTO.idPaciente());
-        if(consultaRequestCreateDTO.idMedico() == null) {
+    public ConsultaResponseDTO cadastrarConsulta(ConsultaRequestCreateDTO consultaRequestDTO) {
+        var dataConsulta = consultaRequestDTO.dataConsulta();
+        var paciente = pacienteService.obterPacientePorId(consultaRequestDTO.idPaciente());
+        if(consultaRequestDTO.idMedico() == null) {
             var medico = buscarMedicoDisponivel(dataConsulta);
-            validarRegrasInclusaoConsulta(medico.getId(),
-                    consultaRequestCreateDTO.idPaciente(), dataConsulta);
+            validarRegrasInclusaoConsulta(medico.getId(), consultaRequestDTO.idPaciente(), dataConsulta);
             var consulta = new Consulta(paciente, medico, dataConsulta);
             consultaRepository.save(consulta);
             return obterConsultaPorId(consulta.getId());
        }
-        validarRegrasInclusaoConsulta(consultaRequestCreateDTO.idMedico(),
-                consultaRequestCreateDTO.idPaciente(), dataConsulta);
-        var medico = medicoService.obterMedicoPorId(consultaRequestCreateDTO.idMedico());
+        validarRegrasInclusaoConsulta(consultaRequestDTO.idMedico(), consultaRequestDTO.idPaciente(), dataConsulta);
+        var medico = medicoService.obterMedicoPorId(consultaRequestDTO.idMedico());
         var consulta = new Consulta(paciente, medico, dataConsulta);
         consultaRepository.save(consulta);
         return obterConsultaPorId(consulta.getId());
     }
 
     @Transactional
-    public ConsultaResponseDTO atualizarConsulta(Long idConsulta, ConsultaRequestUpdateDTO consultaUpdateDTO) {
+    public ConsultaResponseDTO atualizarConsulta(Long idConsulta, ConsultaRequestUpdateDTO consultaRequestDTO) {
         if (idConsulta == null) throw new IllegalArgumentException("O ID da Consulta não pode ser nulo.");
+
         var consulta = consultaRepository.findById(idConsulta)
                 .orElseThrow(() -> new EntityNotFoundException("Consulta não encontrado"));
-        var dataConsulta = consultaUpdateDTO.dataConsulta();
-        if (consultaUpdateDTO.dataConsulta() == null) dataConsulta = consulta.getDataConsulta();
-        var idMedico = consultaUpdateDTO.idMedico();
-        if (consultaUpdateDTO.idMedico() == null) idMedico = consulta.getMedico().getId();
+
+        var dataConsulta = consultaRequestDTO.dataConsulta();
+
+        if (consultaRequestDTO.dataConsulta() == null) dataConsulta = consulta.getDataConsulta();
+
+        var idMedico = consultaRequestDTO.idMedico();
+
+        if (consultaRequestDTO.idMedico() == null) idMedico = consulta.getMedico().getId();
         validarRegrasAlteracaoConsulta(idMedico, dataConsulta);
-        consulta.setDataConsulta(consultaUpdateDTO.dataConsulta());
+        consulta.setDataConsulta(consultaRequestDTO.dataConsulta());
+
         var medico = medicoService.obterMedicoPorId(idMedico);
         consulta.setMedico(medico);
         consultaRepository.save(consulta);
         return obterConsultaPorId(consulta.getId());
     }
 
-    public ConsultaResponseDTO obterConsultaPorId(Long id) {
-        var Consulta = consultaRepository.findById(id)
+    public ConsultaResponseDTO obterConsultaPorId(Long idConsulta) {
+        var Consulta = consultaRepository.findById(idConsulta)
                 .orElseThrow(() -> new EntityNotFoundException("Consulta não encontrado"));
         var medico = medicoService.obterMedicoResponseDTOPorId(Consulta.getMedico().getId());
         var paciente = pacienteService.obterPacienteResponseDTOPorId(Consulta.getPaciente().getId());
@@ -95,20 +98,20 @@ public class ConsultaService {
                 paginacao.getPageNumber(), paginacao.getPageSize(),
                 Sort.by(Sort.Direction.ASC, "dataConsulta"));
         Page<Consulta> ConsultasPaginadas = consultaRepository.findAll(paginacaoOrdenada);
-        return ConsultasPaginadas.map(a -> new ConsultaResponseDTO( a.getId(), a.getDataConsulta(),
-                a.getStatus(), pacienteService.obterPacienteResponseDTOPorId(a.getPaciente().getId()),
-                        medicoService.obterMedicoResponseDTOPorId(a.getMedico().getId())));
+        return ConsultasPaginadas.map(a -> new ConsultaResponseDTO(
+                a.getId(),
+                a.getDataConsulta(),
+                a.getStatus(),
+                pacienteService.obterPacienteResponseDTOPorId(a.getPaciente().getId()),
+                medicoService.obterMedicoResponseDTOPorId(a.getMedico().getId())));
     }
 
     private Medico buscarMedicoDisponivel(LocalDateTime dataConsulta) {
-        var medicos = medicoService.obterListaMedicosAtivos(); // Lista de médicos cadastrados
+        var medicos = medicoService.obterListaMedicosAtivos();
         for (Medico medico : medicos) {
             boolean consultaExistente = consultaRepository
-                    .findConsultaByMedicoAndDataHora(medico.getId(), dataConsulta)
-                    .isPresent(); // Verifica se já existe uma consulta
-            if (!consultaExistente) {
-                return medico; // Retorna o primeiro médico disponível
-            }
+                    .findConsultaByMedicoAndDataHora(medico.getId(), dataConsulta).isPresent();
+            if (!consultaExistente) return medico;
         }
         throw new EntityNotFoundException("Nenhum médico disponível na data e hora especificada.");
     }

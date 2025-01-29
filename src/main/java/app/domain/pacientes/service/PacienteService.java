@@ -1,6 +1,6 @@
 package app.domain.pacientes.service;
 
-import app.domain.pacientes.dto.PacienteRequestCreatedDTO;
+import app.domain.pacientes.dto.PacienteRequestCreateDTO;
 import app.domain.pacientes.dto.PacienteRequestUpdateDTO;
 import app.domain.pacientes.dto.PacienteResponseDTO;
 import app.domain.pacientes.model.Paciente;
@@ -17,8 +17,8 @@ public class PacienteService {
     @Autowired
     PacienteRepository pacienteRepository;
 
-    public PacienteResponseDTO cadastrarPaciente(PacienteRequestCreatedDTO pacienteRequestCreatedDTO) {
-        var paciente = new Paciente(pacienteRequestCreatedDTO);
+    public PacienteResponseDTO cadastrarPaciente(PacienteRequestCreateDTO pacienteRequestCreateDTO) {
+        var paciente = new Paciente(pacienteRequestCreateDTO);
         pacienteRepository.save(paciente);
         return obterPacienteResponseDTOPorId(paciente.getId());
     }
@@ -48,6 +48,7 @@ public class PacienteService {
         var paciente = pacienteRepository.findById(idPaciente)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
         paciente.setStatus(false);
+        pacienteRepository.save(paciente);
     }
 
     public Page<PacienteResponseDTO> obterListaDePacientes(Pageable paginacao) {
@@ -55,13 +56,21 @@ public class PacienteService {
     }
 
     public Page<PacienteResponseDTO> convertePagePacienteResponseDTO(Page<Paciente> pacientes){
-        return pacientes.map(p -> new PacienteResponseDTO(p.getId(), p.getNome(),
-                p.getEmail(), p.getCpf(), p.getStatus()));
+        return pacientes.map(p -> new PacienteResponseDTO(
+                p.getId(),
+                p.getNome(),
+                p.getEmail(),
+                p.getCpf(),
+                p.getStatus()));
     }
 
     public PacienteResponseDTO convertePacienteResponseDTO(Paciente paciente){
-        return new PacienteResponseDTO(paciente.getId(), paciente.getNome(), paciente.getEmail(),
-                    paciente.getCpf(), paciente.getStatus());
+        return new PacienteResponseDTO(
+                paciente.getId(),
+                paciente.getNome(),
+                paciente.getEmail(),
+                paciente.getCpf(),
+                paciente.getStatus());
     }
 
 }

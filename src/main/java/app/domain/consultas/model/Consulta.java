@@ -35,13 +35,13 @@ public class Consulta {
         this.paciente = paciente;
         this.medico = medico;
         this.dataConsulta = dataConsulta;
-        this.dataHoraInclusao = LocalDateTime.now(); // Define a data de inclusão na criação
+        this.dataHoraInclusao = LocalDateTime.now();
         this.status = true;
     }
 
     @PreUpdate
     public void preUpdate() {
-        this.dataHoraAlteracao = LocalDateTime.now();  // Define a data de alteração automaticamente antes de atualizar
+        this.dataHoraAlteracao = LocalDateTime.now();
     }
 
     @PrePersist
@@ -65,32 +65,12 @@ public class Consulta {
         return dataConsulta;
     }
 
-    public void setPaciente(Paciente paciente) {
-        this.paciente = paciente;
-    }
-
     public void setMedico(Medico medico) {
         this.medico = medico;
     }
 
     public void setDataConsulta(LocalDateTime dataConsulta) {
         this.dataConsulta = dataConsulta;
-    }
-
-    public LocalDateTime getDataHoraInclusao() {
-        return dataHoraInclusao;
-    }
-
-    public void setDataHoraInclusao(LocalDateTime dataHoraInclusao) {
-        this.dataHoraInclusao = dataHoraInclusao;
-    }
-
-    public LocalDateTime getDataHoraAlteracao() {
-        return dataHoraAlteracao;
-    }
-
-    public void setDataHoraAlteracao(LocalDateTime dataHoraAlteracao) {
-        this.dataHoraAlteracao = dataHoraAlteracao;
     }
 
     public MotivoCancelamento getMotivoCancelamento() {

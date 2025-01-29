@@ -13,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
-
 @RestController
 @RequestMapping("api/medicos")
 public class MedicoController {
@@ -23,37 +22,37 @@ public class MedicoController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<MedicoResponseDTO> cadastrarMedico(@RequestBody @Valid MedicoRequestCreateDTO
-                                                      medicoRequestCreateDTO, UriComponentsBuilder uriBuilder) {
-        var medicoResponseDTO = medicoService.cadastrarMedico(medicoRequestCreateDTO);
+    public ResponseEntity<MedicoResponseDTO> cadastrar(@RequestBody @Valid MedicoRequestCreateDTO
+                                                      medicoRequestDTO, UriComponentsBuilder uriBuilder) {
+        var medicoResponseDTO = medicoService.cadastrarMedico(medicoRequestDTO);
         var uri = uriBuilder.path("/medicos/{idMedico}").buildAndExpand(medicoResponseDTO.id()).toUri();
         return  ResponseEntity.created(uri).body(medicoResponseDTO);
     }
 
-    @GetMapping ("/{idMedico}")
-    public ResponseEntity<MedicoResponseDTO> obterMedicoPorId(@PathVariable Long idMedico) {
-        var medicoResponseDTO = medicoService.obterMedicoResponseDTOPorId(idMedico);
+    @GetMapping ("/{id}")
+    public ResponseEntity<MedicoResponseDTO> consultar(@PathVariable Long id) {
+        var medicoResponseDTO = medicoService.obterMedicoResponseDTOPorId(id);
         return ResponseEntity.ok(medicoResponseDTO);
     }
 
-    @PutMapping ("/{idMedico}")
+    @PutMapping ("/{id}")
     @Transactional
-    public ResponseEntity<MedicoResponseDTO> atualizarMedico(@PathVariable Long idMedico, @RequestBody @Valid
-    MedicoRequestUpdateDTO medicoUpdateDTO) {
-        var medicoResponseDTO = medicoService.alterarMedicoPorId(idMedico, medicoUpdateDTO);
+    public ResponseEntity<MedicoResponseDTO> atualizar(@PathVariable Long id, @RequestBody @Valid
+    MedicoRequestUpdateDTO medicoRequestDTO) {
+        var medicoResponseDTO = medicoService.alterarMedicoPorId(id, medicoRequestDTO);
         return ResponseEntity.ok(medicoResponseDTO);
     }
 
-    @DeleteMapping ("/{idMedico}")
+    @DeleteMapping ("/{id}")
     @Transactional
-    public ResponseEntity<Void> inativarMedico(@PathVariable Long idMedico) {
-        medicoService.inativarMedicoPorId(idMedico);
+    public ResponseEntity<Void> inativar(@PathVariable Long id) {
+        medicoService.inativarMedicoPorId(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<Page<MedicoResponseDTO>> listarMedicos(Pageable paginacao) {
-        var page = medicoService.obterListaPaginadaDeMedicosAtivos(paginacao);
+    public ResponseEntity<Page<MedicoResponseDTO>> listar(Pageable paginacao) {
+        var page = medicoService.obterListaDeMedicos(paginacao);
         return ResponseEntity.ok(page);
     }
 

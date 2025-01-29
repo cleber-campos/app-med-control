@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record PacienteRequestCreatedDTO(
+public record PacienteRequestCreateDTO(
         @NotBlank (message = "O nome e obrigatorio")
         String nome,
         @NotBlank (message = "O email e obrigatorio")

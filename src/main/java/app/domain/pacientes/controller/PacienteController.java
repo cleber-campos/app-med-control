@@ -1,6 +1,6 @@
 package app.domain.pacientes.controller;
 
-import app.domain.pacientes.dto.PacienteRequestCreatedDTO;
+import app.domain.pacientes.dto.PacienteRequestCreateDTO;
 import app.domain.pacientes.dto.PacienteRequestUpdateDTO;
 import app.domain.pacientes.dto.PacienteResponseDTO;
 import app.domain.pacientes.service.PacienteService;
@@ -23,35 +23,37 @@ public class PacienteController {
 
     @PostMapping
     @Transactional
-    public ResponseEntity<PacienteResponseDTO> cadastrarPaciente(@RequestBody @Valid PacienteRequestCreatedDTO pacienteRequestCreatedDTO
+    public ResponseEntity<PacienteResponseDTO> cadastrar(
+            @RequestBody @Valid PacienteRequestCreateDTO pacienteRequestDTO
             , UriComponentsBuilder uriBuilder) {
-        var pacienteResponseDTO = pacienteService.cadastrarPaciente(pacienteRequestCreatedDTO);
+        var pacienteResponseDTO = pacienteService.cadastrarPaciente(pacienteRequestDTO);
         var uri = uriBuilder.path("/pacientes/{idPaciente}").buildAndExpand(pacienteResponseDTO.id()).toUri();
         return ResponseEntity.created(uri).body(pacienteResponseDTO);
     }
 
-    @GetMapping ("/{idPaciente}")
-    public ResponseEntity<PacienteResponseDTO> obterPacientePorId(@PathVariable Long idPaciente) {
-        var pacienteResponseDTO = pacienteService.obterPacienteResponseDTOPorId(idPaciente);
+    @GetMapping ("/{id}")
+    public ResponseEntity<PacienteResponseDTO> consultar(@PathVariable Long id) {
+        var pacienteResponseDTO = pacienteService.obterPacienteResponseDTOPorId(id);
         return ResponseEntity.ok(pacienteResponseDTO);
     }
 
-    @PutMapping("/{idPaciente}")
+    @PutMapping("/{id}")
     @Transactional
-    public ResponseEntity<PacienteResponseDTO> atualizarPaciente(@PathVariable Long idPaciente, @RequestBody @Valid PacienteRequestUpdateDTO pacienteUpdateDTO){
-        var pacienteResponseDTO = pacienteService.alterarPaciente(idPaciente, pacienteUpdateDTO);
+    public ResponseEntity<PacienteResponseDTO> atualizar(
+            @PathVariable Long id, @RequestBody @Valid PacienteRequestUpdateDTO pacienteRequestDTO){
+        var pacienteResponseDTO = pacienteService.alterarPaciente(id, pacienteRequestDTO);
         return ResponseEntity.ok(pacienteResponseDTO);
     }
 
-    @DeleteMapping ("/{idPaciente}")
+    @DeleteMapping ("/{id}")
     @Transactional
-    public ResponseEntity<Void> inativarPaciente(@PathVariable Long idPaciente){
-        pacienteService.InativarPaciente(idPaciente);
+    public ResponseEntity<Void> inativar(@PathVariable Long id){
+        pacienteService.InativarPaciente(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<Page<PacienteResponseDTO>> listarPacientes(@PageableDefault(size = 10) Pageable paginacao) {
+    public ResponseEntity<Page<PacienteResponseDTO>> listar(@PageableDefault Pageable paginacao) {
         var page = pacienteService.obterListaDePacientes(paginacao);
         return ResponseEntity.ok(page);
     }

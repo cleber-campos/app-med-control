@@ -12,3 +12,4 @@ public record ConsultaRequestCreateDTO(
         @NotNull (message = "A data da consulta e obrigatoria")
         LocalDateTime dataConsulta){
 }
+

@@ -1,25 +1,20 @@
 package app.models;
 
-import app.dtos.medicos.MedicoRequestCreateDTO;
-import app.dtos.medicos.MedicoRequestUpdateDTO;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
+import lombok.*;
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "tb_medicos")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@EqualsAndHashCode
+@Builder
+@Entity
+@Table(name = "tb_medicos")
 public class Medico {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(nullable = false)
     private String nome;
@@ -37,31 +32,6 @@ public class Medico {
     private Boolean status;
     private LocalDateTime dataHoraInclusao;
     private LocalDateTime dataHoraAlteracao;
-
-    public Medico(MedicoRequestCreateDTO medicoRequestCreateDTO) {
-        this.nome = medicoRequestCreateDTO.nome();
-        this.email = medicoRequestCreateDTO.email();
-        this.telefone = medicoRequestCreateDTO.telefone();
-        this.endereco = new Endereco(medicoRequestCreateDTO.endereco());
-        this.crm = medicoRequestCreateDTO.crm();
-        this.especialidade = medicoRequestCreateDTO.especialidade();
-        this.status = true;
-    }
-
-    public void atualizaDados(MedicoRequestUpdateDTO medicoRequestUpdateDTO) {
-        if (medicoRequestUpdateDTO.nome() != null) {
-            this.nome = medicoRequestUpdateDTO.nome();
-        }
-        if (medicoRequestUpdateDTO.telefone() != null) {
-            this.telefone = medicoRequestUpdateDTO.telefone();
-        }
-        if (medicoRequestUpdateDTO.endereco() != null) {
-            this.endereco.atualizaDadosEndereco(medicoRequestUpdateDTO.endereco());
-        }
-        if (medicoRequestUpdateDTO.especialidade() != null) {
-            this.especialidade = medicoRequestUpdateDTO.especialidade();
-        }
-    }
 
     @PreUpdate
     public void preUpdate() {

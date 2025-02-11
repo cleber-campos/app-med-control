@@ -1,14 +1,16 @@
 package app.dtos.medicos;
 
 import app.models.Especialidade;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.Getter;
 
-@JsonIgnoreProperties
-public record MedicoResponseDTO(
-        Long id,
-        String nome,
-        String email,
-        String crm,
-        Especialidade especialidade,
-        Boolean status) {
+@Getter
+@Builder
+public class MedicoResponseDTO{
+        private Long id;
+        private String nome;
+        private String email;
+        private String crm;
+        private Especialidade especialidade;
+        private Boolean status;
 }

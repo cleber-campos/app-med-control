@@ -1,10 +1,12 @@
 package app.dtos.usuarios;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.Getter;
 
-@JsonIgnoreProperties
-public record UsuarioResponseDTO(
-        Long id,
-        String login,
-        Boolean status){
+@Getter
+@Builder
+public class UsuarioResponseDTO {
+    private Long id;
+    private String login;
+    private Boolean status;
 }

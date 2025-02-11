@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record PacienteRequestUpdateDTO(
+
         String nome,
         String telefone,
         EnderecoRequestUpdateDTO endereco) {

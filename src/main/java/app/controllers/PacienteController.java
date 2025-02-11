@@ -1,13 +1,11 @@
 package app.controllers;
 
+import app.dtos.PageDTO;
 import app.dtos.pacientes.PacienteRequestCreateDTO;
 import app.dtos.pacientes.PacienteRequestUpdateDTO;
 import app.dtos.pacientes.PacienteResponseDTO;
 import app.services.PacienteService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -18,43 +16,43 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("api/pacientes")
 public class PacienteController {
 
-    @Autowired
-    PacienteService pacienteService;
+    private final PacienteService pacienteService;
+
+    public PacienteController(PacienteService pacienteService) {
+        this.pacienteService = pacienteService;
+    }
 
     @PostMapping
-    @Transactional
-    public ResponseEntity<PacienteResponseDTO> cadastrar(
-            @RequestBody @Valid PacienteRequestCreateDTO pacienteRequestDTO
-            , UriComponentsBuilder uriBuilder) {
-        var pacienteResponseDTO = pacienteService.cadastrarPaciente(pacienteRequestDTO);
-        var uri = uriBuilder.path("/pacientes/{idPaciente}").buildAndExpand(pacienteResponseDTO.id()).toUri();
-        return ResponseEntity.created(uri).body(pacienteResponseDTO);
+    public ResponseEntity<PacienteResponseDTO> cadastrar(@RequestBody @Valid
+        PacienteRequestCreateDTO request, UriComponentsBuilder uriBuilder) {
+        PacienteResponseDTO paciente = pacienteService.criarPaciente(request);
+        var uri = uriBuilder.path("/pacientes/{id}").buildAndExpand(
+                paciente.getId()).toUri();
+        return ResponseEntity.created(uri).body(paciente);
     }
 
     @GetMapping ("/{id}")
     public ResponseEntity<PacienteResponseDTO> consultar(@PathVariable Long id) {
-        var pacienteResponseDTO = pacienteService.obterPacienteResponseDTOPorId(id);
-        return ResponseEntity.ok(pacienteResponseDTO);
+        PacienteResponseDTO paciente = pacienteService.buscarPaciente(id);
+        return ResponseEntity.ok(paciente);
     }
 
     @PutMapping("/{id}")
-    @Transactional
     public ResponseEntity<PacienteResponseDTO> atualizar(
-            @PathVariable Long id, @RequestBody @Valid PacienteRequestUpdateDTO pacienteRequestDTO){
-        var pacienteResponseDTO = pacienteService.alterarPaciente(id, pacienteRequestDTO);
-        return ResponseEntity.ok(pacienteResponseDTO);
+            @PathVariable Long id, @RequestBody @Valid PacienteRequestUpdateDTO request){
+        PacienteResponseDTO paciente = pacienteService.atualizarPaciente(id, request);
+        return ResponseEntity.ok(paciente);
     }
 
     @DeleteMapping ("/{id}")
-    @Transactional
     public ResponseEntity<Void> inativar(@PathVariable Long id){
-        pacienteService.InativarPaciente(id);
+        pacienteService.inativarPaciente(id);
         return ResponseEntity.noContent().build();
     }
 
     @GetMapping
-    public ResponseEntity<Page<PacienteResponseDTO>> listar(@PageableDefault Pageable paginacao) {
-        var page = pacienteService.obterListaDePacientes(paginacao);
+    public ResponseEntity<PageDTO<PacienteResponseDTO>> listar(@PageableDefault Pageable paginacao) {
+        PageDTO<PacienteResponseDTO> page = pacienteService.listarPacientes(paginacao);
         return ResponseEntity.ok(page);
     }
 

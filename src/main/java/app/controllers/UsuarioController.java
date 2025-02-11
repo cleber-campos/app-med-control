@@ -1,13 +1,11 @@
 package app.controllers;
 
 import app.dtos.usuarios.UsuarioCreateDTO;
-import app.dtos.usuarios.UsuarioPageDTO;
+import app.dtos.PageDTO;
 import app.dtos.usuarios.UsuarioUpdateDTO;
 import app.dtos.usuarios.UsuarioResponseDTO;
 import app.services.UsuarioService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,30 +15,32 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("api/usuarios")
 public class UsuarioController {
 
-    @Autowired
-    private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
+
+    public UsuarioController(UsuarioService usuarioService) {
+        this.usuarioService = usuarioService;
+    }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> cadastrar(
-            @RequestBody @Valid UsuarioCreateDTO usuarioRequestDTO,
-            UriComponentsBuilder uriBuilder) {
-        var usuarioResponseDTO = usuarioService.criarUsuario(usuarioRequestDTO);
-        var uri = uriBuilder.path("/usuarios/{idUsuario}").buildAndExpand(usuarioResponseDTO.id())
-                .toUri();
-        return ResponseEntity.created(uri).body(usuarioResponseDTO);
+    public ResponseEntity<UsuarioResponseDTO> cadastrar(@RequestBody @Valid
+        UsuarioCreateDTO request, UriComponentsBuilder uriBuilder) {
+        UsuarioResponseDTO usuario = usuarioService.criarUsuario(request);
+        var uri = uriBuilder.path("/usuarios/{idUsuario}")
+                .buildAndExpand(usuario.getId()).toUri();
+        return ResponseEntity.created(uri).body(usuario);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> buscar(@PathVariable Long id){
-        var usuarioResponseDTO = usuarioService.buscarUsuario(id);
-        return ResponseEntity.ok(usuarioResponseDTO);
+        UsuarioResponseDTO usuario = usuarioService.buscarUsuario(id);
+        return ResponseEntity.ok(usuario);
     }
 
     @PutMapping("{id}")
     public ResponseEntity<UsuarioResponseDTO> alterar(
-            @PathVariable Long id, @RequestBody @Valid UsuarioUpdateDTO usuarioRequestDTO){
-        var usuarioResponseDTO = usuarioService.atualizarUsuario(id, usuarioRequestDTO);
-        return ResponseEntity.ok(usuarioResponseDTO);
+            @PathVariable Long id, @RequestBody @Valid UsuarioUpdateDTO request){
+        UsuarioResponseDTO usuario = usuarioService.atualizarUsuario(id, request);
+        return ResponseEntity.ok(usuario);
     }
 
     @DeleteMapping("{id}")
@@ -50,9 +50,8 @@ public class UsuarioController {
     }
 
     @GetMapping
-    public ResponseEntity<UsuarioPageDTO> listar(Pageable paginacao){
-        var page = usuarioService.buscarListaDeUsuarios(paginacao);
-        return ResponseEntity.ok(page);
+    public ResponseEntity<PageDTO<UsuarioResponseDTO>> listar(Pageable paginacao) {
+        return ResponseEntity.ok(usuarioService.listarUsuarios(paginacao));
     }
 
 }

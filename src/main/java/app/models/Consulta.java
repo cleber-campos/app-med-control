@@ -9,11 +9,12 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Builder
 @Entity
 @Table(name = "tb_consultas")
 public class Consulta {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_paciente", nullable = false)
@@ -23,19 +24,17 @@ public class Consulta {
     private Medico medico;
     @Column(nullable = false)
     private LocalDateTime dataConsulta;
-    @Column(nullable = false, updatable = false)
     private LocalDateTime dataHoraInclusao;
     private LocalDateTime dataHoraAlteracao;
     private MotivoCancelamento motivoCancelamento;
     private Boolean status;
 
-    public Consulta(Paciente paciente, Medico medico, LocalDateTime dataConsulta) {
-        this.paciente = paciente;
-        this.medico = medico;
-        this.dataConsulta = dataConsulta;
-        this.dataHoraInclusao = LocalDateTime.now();
-        this.status = true;
-    }
+//    public Consulta(Medico medico, Paciente paciente, LocalDateTime dataConsulta) {
+//        this.paciente = paciente;
+//        this.medico = medico;
+//        this.dataConsulta = dataConsulta;
+//        this.dataHoraInclusao = LocalDateTime.now();
+//    }
 
     @PreUpdate
     public void preUpdate() {

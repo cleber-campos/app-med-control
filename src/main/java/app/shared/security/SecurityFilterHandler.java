@@ -26,14 +26,19 @@ public class SecurityFilterHandler extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        var tokenJWT = recuperarToken(request); //recupera o token na request
+        var token = recuperarToken(request); //recupera o token na request
 
-        if(tokenJWT != null){
-            var login = tokenService.recuperarLogin(tokenJWT); // recupera o login do token
+        if(token != null){
+            if (tokenService.validaTokenExpirado(token)) throw new
+                    RuntimeException("Token expirado!" + token); // Verifica se está expirado
+
+            var login = tokenService.recuperarLogin(token); // recupera o login do token
+
             var usuario = usuarioService.buscarUsuarioPorLogin(login); // recupera o usuario
 
-            var authentication = new UsernamePasswordAuthenticationToken(usuario, null,
-                    usuario.getAuthorities()); // autentica usuario
+            var authentication = new UsernamePasswordAuthenticationToken(
+                    usuario, null, usuario.getAuthorities()); // autentica usuario e senha
+
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);  // autoriza a entrada no filtro do Spring
         }

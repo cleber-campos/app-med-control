@@ -1,7 +1,7 @@
 package app.services;
 
 import app.dtos.usuarios.UsuarioCreateDTO;
-import app.dtos.usuarios.UsuarioPageDTO;
+import app.dtos.PageDTO;
 import app.dtos.usuarios.UsuarioUpdateDTO;
 import app.dtos.usuarios.UsuarioResponseDTO;
 import app.mappers.UsuarioMapper;
@@ -20,19 +20,19 @@ public class UsuarioService {
     private final UsuarioMapper usuarioMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioMapper usuarioMapper,
-                          PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository, UsuarioMapper
+            usuarioMapper, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
         this.usuarioMapper = usuarioMapper;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
-    public UsuarioResponseDTO criarUsuario(UsuarioCreateDTO usuarioRequest){
-        Usuario usuario = usuarioMapper.toEntity(usuarioRequest);
-        usuario.setSenha(passwordEncoder.encode(usuarioRequest.senha())); //encriptar senha
-        var usuarioSalvo = usuarioRepository.save(usuario);
-        return usuarioMapper.toResponseDTO(usuarioSalvo);
+    public UsuarioResponseDTO criarUsuario(UsuarioCreateDTO request){
+        Usuario usuario = usuarioMapper.toEntity(request);
+        usuario.setSenha(passwordEncoder.encode(request.senha())); //encriptar senha
+        var usuarioCriado = usuarioRepository.save(usuario);
+        return usuarioMapper.toResponseDTO(usuarioCriado);
     }
 
     public UsuarioResponseDTO buscarUsuario(Long id) {
@@ -43,16 +43,16 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioResponseDTO atualizarUsuario(Long id, UsuarioUpdateDTO usuarioRequest) {
-        Usuario usuario = usuarioRepository.findById(id)
+    public UsuarioResponseDTO atualizarUsuario(Long id, UsuarioUpdateDTO request) {
+        usuarioRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
-        usuarioMapper.toUpdateEntity(usuarioRequest, usuario);
-        if (usuarioRequest.senha() != null &&
-                !passwordEncoder.matches(usuarioRequest.senha(), usuario.getSenha())) {
-            usuario.setSenha(passwordEncoder.encode(usuarioRequest.senha()));
+        var usuarioAlterado = usuarioMapper.updateFromDTO(request);
+        if (request.senha() != null &&
+                !passwordEncoder.matches(request.senha(), usuarioAlterado.getSenha())) {
+            usuarioAlterado.setSenha(passwordEncoder.encode(request.senha()));
         }
-        Usuario usuarioAtualizado = usuarioRepository.save(usuario);
-        return usuarioMapper.toResponseDTO(usuarioAtualizado);
+        usuarioRepository.save(usuarioAlterado);
+        return usuarioMapper.toResponseDTO(usuarioAlterado);
     }
 
     @Transactional
@@ -62,19 +62,17 @@ public class UsuarioService {
             .orElseThrow(() -> new EntityNotFoundException("Usuario não encontrado"));
     if (!usuario.getStatus()) throw new IllegalStateException("Usuário já está inativo.");
     usuario.setStatus(false);
-        //return usuarioMapper.toResponseDTO(usuario);
     }
 
     public Usuario buscarUsuarioPorLogin(String login){
         return (Usuario) usuarioRepository.findByLogin(login);
     }
 
-    public UsuarioPageDTO buscarListaDeUsuarios(Pageable paginacao) {
+    public PageDTO<UsuarioResponseDTO> listarUsuarios(Pageable paginacao) {
         var usuarios = usuarioRepository.findAllByStatusTrue(paginacao);
         var usuariosPageDTO = usuarios.map(usuarioMapper::toResponseDTO);
-        return new UsuarioPageDTO(usuariosPageDTO);
+        return new PageDTO<>(usuariosPageDTO);
     }
-
 
 }
 

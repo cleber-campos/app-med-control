@@ -1,12 +1,14 @@
 package app.dtos.pacientes;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Builder;
+import lombok.Getter;
 
-@JsonIgnoreProperties
-public record PacienteResponseDTO(
-        Long id,
-        String nome,
-        String email,
-        String cpf,
-        Boolean status) {
+@Getter
+@Builder
+public class PacienteResponseDTO{
+    private Long id;
+    private String nome;
+    private String email;
+    private String cpf;
+    private Boolean status;
 }

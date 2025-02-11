@@ -1,12 +1,14 @@
 package app.services;
 
+import app.dtos.PageDTO;
 import app.dtos.pacientes.PacienteRequestCreateDTO;
 import app.dtos.pacientes.PacienteRequestUpdateDTO;
 import app.dtos.pacientes.PacienteResponseDTO;
+import app.mappers.PacienteMapper;
 import app.models.Paciente;
 import app.repositories.PacienteRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,63 +16,57 @@ import org.springframework.stereotype.Service;
 @Service
 public class PacienteService {
 
-    @Autowired
-    PacienteRepository pacienteRepository;
+    private final PacienteRepository pacienteRepository;
+    private final PacienteMapper pacienteMapper;
 
-    public PacienteResponseDTO cadastrarPaciente(PacienteRequestCreateDTO pacienteRequestCreateDTO) {
-        var paciente = new Paciente(pacienteRequestCreateDTO);
-        pacienteRepository.save(paciente);
-        return obterPacienteResponseDTOPorId(paciente.getId());
+    public PacienteService(PacienteRepository pacienteRepository, PacienteMapper pacienteMapper) {
+        this.pacienteRepository = pacienteRepository;
+        this.pacienteMapper = pacienteMapper;
     }
 
-    public PacienteResponseDTO alterarPaciente(Long idPaciente, PacienteRequestUpdateDTO pacienteUpdateDTO) {
-        var paciente = pacienteRepository.findById(idPaciente)
-                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
-        paciente.atualizaDadosPaciente(pacienteUpdateDTO);
-        return obterPacienteResponseDTOPorId(paciente.getId());
+    @Transactional
+    public PacienteResponseDTO criarPaciente(PacienteRequestCreateDTO request) {
+        Paciente paciente = pacienteMapper.toEntity(request);
+        Paciente pacienteCriado = pacienteRepository.save(paciente);
+        return pacienteMapper.toResponse(pacienteCriado);
     }
 
-    public PacienteResponseDTO obterPacienteResponseDTOPorId(Long idPaciente) {
-        if (idPaciente == null) throw new IllegalArgumentException("O ID do paciente não pode ser nulo.");
-        var paciente = pacienteRepository.findById(idPaciente)
+    @Transactional
+    public PacienteResponseDTO atualizarPaciente(Long id, PacienteRequestUpdateDTO request) {
+        if(id == null) throw new IllegalArgumentException("O ID do paciente não pode ser nulo.");
+       pacienteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
-        return convertePacienteResponseDTO(paciente);
+        Paciente pacienteAlterado = pacienteMapper.updateFromDTO(request);
+        pacienteRepository.save(pacienteAlterado);
+        return pacienteMapper.toResponse(pacienteAlterado);
     }
 
-    public Paciente obterPacientePorId(Long idPaciente) {
-        if (idPaciente == null) throw new IllegalArgumentException("O ID do paciente não pode ser nulo.");
-        return pacienteRepository.findById(idPaciente)
+    public PacienteResponseDTO buscarPaciente(Long id) {
+        if (id == null) throw new IllegalArgumentException("O ID do paciente não pode ser nulo.");
+        Paciente paciente = pacienteRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
+        return pacienteMapper.toResponse(paciente);
+    }
+
+    public Paciente obterPacientePorId(Long id) {
+        if (id == null) throw new IllegalArgumentException("O ID do paciente não pode ser nulo.");
+        return pacienteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
     }
 
-    public void InativarPaciente(Long idPaciente) {
-        if (idPaciente == null) throw new IllegalArgumentException("O ID do paciente não pode ser nulo.");
-        var paciente = pacienteRepository.findById(idPaciente)
+    public void inativarPaciente(Long id) {
+        if (id == null) throw new IllegalArgumentException("O ID do paciente não pode ser nulo.");
+        Paciente paciente = pacienteRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado"));
+        if (!paciente.getStatus()) throw new IllegalStateException("Paciente já está inativo.");
         paciente.setStatus(false);
         pacienteRepository.save(paciente);
     }
 
-    public Page<PacienteResponseDTO> obterListaDePacientes(Pageable paginacao) {
-        return convertePagePacienteResponseDTO(pacienteRepository.findAllByStatusTrue(paginacao));
-    }
-
-    public Page<PacienteResponseDTO> convertePagePacienteResponseDTO(Page<Paciente> pacientes){
-        return pacientes.map(p -> new PacienteResponseDTO(
-                p.getId(),
-                p.getNome(),
-                p.getEmail(),
-                p.getCpf(),
-                p.getStatus()));
-    }
-
-    public PacienteResponseDTO convertePacienteResponseDTO(Paciente paciente){
-        return new PacienteResponseDTO(
-                paciente.getId(),
-                paciente.getNome(),
-                paciente.getEmail(),
-                paciente.getCpf(),
-                paciente.getStatus());
+    public PageDTO<PacienteResponseDTO> listarPacientes(Pageable page) {
+        Page<Paciente> pacientes = pacienteRepository.findAllByStatusTrue(page);
+        Page<PacienteResponseDTO> pacientesPageDTO = pacientes.map(pacienteMapper::toResponse);
+        return new PageDTO<>(pacientesPageDTO);
     }
 
 }

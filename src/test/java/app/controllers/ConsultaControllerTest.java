@@ -43,8 +43,6 @@ class ConsultaControllerTest {
     @MockitoBean
     private ConsultaService consultaService;
 
-    @Autowired
-    private MockDataTest mockDataTest;
 
     //Teste de Unidade
     @Test
@@ -65,8 +63,6 @@ class ConsultaControllerTest {
     void cadastrarResponseHttp201() throws Exception {
         //given
         var data = LocalDateTime.now().plusHours(12);
-        var medico = mockDataTest.gerarMedicoAtivo("Medico1");
-        var paciente = mockDataTest.gerarPacienteAtivo("Paciente1");
         var consultaResponse = ConsultaResponseDTO.builder()
                                 .id(null)
                                 .dataConsulta(data)
@@ -79,7 +75,7 @@ class ConsultaControllerTest {
         var response = mvc.perform(post("/api/consultas")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(dadosCreateConsultaJson.write(
-                                new ConsultaRequestCreateDTO(2l,5l, data)
+                                new ConsultaRequestCreateDTO(2L, 5L, data)
                         ).getJson())
                 ).andReturn().getResponse();
         // then
@@ -95,6 +91,5 @@ class ConsultaControllerTest {
         ).getJson();
         assertThat(response.getContentAsString()).isEqualTo(jsonEsperado);
     }
-
 
 }

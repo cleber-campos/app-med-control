@@ -5,6 +5,7 @@ import app.dtos.pacientes.PacienteRequestCreateDTO;
 import app.dtos.pacientes.PacienteRequestUpdateDTO;
 import app.dtos.pacientes.PacienteResponseDTO;
 import app.services.PacienteService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -14,6 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("api/pacientes")
+@SecurityRequirement(name = "bearer-key")
 public class PacienteController {
 
     private final PacienteService pacienteService;

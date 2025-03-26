@@ -5,6 +5,7 @@ import app.dtos.medicos.MedicoRequestCreateDTO;
 import app.dtos.medicos.MedicoRequestUpdateDTO;
 import app.dtos.medicos.MedicoResponseDTO;
 import app.services.MedicoService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("api/medicos")
+@SecurityRequirement(name = "bearer-key")
 public class MedicoController {
 
     private final MedicoService medicoService;

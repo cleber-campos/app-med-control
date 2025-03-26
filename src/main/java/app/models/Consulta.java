@@ -29,13 +29,6 @@ public class Consulta {
     private MotivoCancelamento motivoCancelamento;
     private Boolean status;
 
-//    public Consulta(Medico medico, Paciente paciente, LocalDateTime dataConsulta) {
-//        this.paciente = paciente;
-//        this.medico = medico;
-//        this.dataConsulta = dataConsulta;
-//        this.dataHoraInclusao = LocalDateTime.now();
-//    }
-
     @PreUpdate
     public void preUpdate() {
         this.dataHoraAlteracao = LocalDateTime.now();

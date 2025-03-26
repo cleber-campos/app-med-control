@@ -1,6 +1,7 @@
 package app.dtos.consulta;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -10,6 +11,7 @@ public record ConsultaRequestCreateDTO(
         Long idPaciente,
         Long idMedico,
         @NotNull (message = "A data da consulta e obrigatoria")
+        @Future
         LocalDateTime dataConsulta){
 }
 

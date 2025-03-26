@@ -5,6 +5,7 @@ import app.dtos.PageDTO;
 import app.dtos.usuarios.UsuarioUpdateDTO;
 import app.dtos.usuarios.UsuarioResponseDTO;
 import app.services.UsuarioService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @RestController
 @RequestMapping("api/usuarios")
+@SecurityRequirement(name = "bearer-key")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;

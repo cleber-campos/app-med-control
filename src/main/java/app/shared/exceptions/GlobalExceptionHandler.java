@@ -11,7 +11,6 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
 import java.util.List;
 
 @RestControllerAdvice
@@ -36,6 +35,12 @@ public class GlobalExceptionHandler {
         var listErros = erros.stream()
                 .map(DadosErroValidacao::new).toList();
         return ResponseEntity.status(400).body(listErros);
+    }
+
+    @ExceptionHandler(ValidacaoException.class)
+    public ResponseEntity tratarErroRegrasDeNegocio(ValidacaoException ex){
+        return ResponseEntity.status(422)
+                .body("Erro: " +ex.getLocalizedMessage());
     }
 
     @ExceptionHandler(Exception.class)

@@ -21,7 +21,7 @@ public class ConsultaMapperImpl implements ConsultaMapper{
     }
 
     @Override
-    public Consulta toEntity(ConsultaRequestCreateDTO requestDTO, Medico medico) {
+    public Consulta toEntity(ConsultaRequestCreateDTO requestDTO) {
         return Consulta.builder()
                 .paciente(Paciente.builder().id(requestDTO.idPaciente()).build())
                 .medico(Medico.builder().id(requestDTO.idMedico()).build())
@@ -31,7 +31,7 @@ public class ConsultaMapperImpl implements ConsultaMapper{
     }
 
     @Override
-    public Consulta updateFromDTO(ConsultaRequestUpdateDTO requestDTO) {
+    public Consulta updateFromDTO(ConsultaRequestUpdateDTO requestDTO, Medico medico) {
         if(requestDTO == null) return null;
         return Consulta.builder()
                 .medico(Medico.builder().id(requestDTO.idMedico()).build())

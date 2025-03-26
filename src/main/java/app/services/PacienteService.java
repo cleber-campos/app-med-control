@@ -19,7 +19,8 @@ public class PacienteService {
     private final PacienteRepository pacienteRepository;
     private final PacienteMapper pacienteMapper;
 
-    public PacienteService(PacienteRepository pacienteRepository, PacienteMapper pacienteMapper) {
+    public PacienteService(PacienteRepository pacienteRepository,
+                           PacienteMapper pacienteMapper) {
         this.pacienteRepository = pacienteRepository;
         this.pacienteMapper = pacienteMapper;
     }
@@ -68,5 +69,4 @@ public class PacienteService {
         Page<PacienteResponseDTO> pacientesPageDTO = pacientes.map(pacienteMapper::toResponse);
         return new PageDTO<>(pacientesPageDTO);
     }
-
 }

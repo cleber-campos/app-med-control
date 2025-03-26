@@ -12,16 +12,16 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Service
 public class MedicoService {
 
-    private final MedicoRepository medicoRepository;
+    private static MedicoRepository medicoRepository;
     private final MedicoMapper medicoMapper;
 
     public MedicoService(MedicoRepository medicoRepository, MedicoMapper medicoMapper) {
-        this.medicoRepository = medicoRepository;
+        MedicoService.medicoRepository = medicoRepository;
         this.medicoMapper = medicoMapper;
     }
 
@@ -70,8 +70,9 @@ public class MedicoService {
         return new PageDTO<>(medicosPageDTO);
     }
 
-    public List<Medico> obterListaMedicosAtivos(){
-        return medicoRepository.findAllByStatusTrue();
+    public Medico buscarMedicoAleatorio(LocalDateTime data){
+        return medicoRepository.BuscarMedicoAleatorio(data)
+                .orElseThrow(() -> new EntityNotFoundException("Médico não encontrado"));
     }
 
 }

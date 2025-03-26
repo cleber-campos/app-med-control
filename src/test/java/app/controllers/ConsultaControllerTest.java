@@ -1,6 +1,5 @@
 package app.controllers;
 
-import app.MockDataTest;
 import app.dtos.consulta.ConsultaRequestCreateDTO;
 import app.dtos.consulta.ConsultaResponseDTO;
 import app.dtos.medicos.MedicoResponseDTO;
@@ -42,7 +41,6 @@ class ConsultaControllerTest {
 
     @MockitoBean
     private ConsultaService consultaService;
-
 
     //Teste de Unidade
     @Test
